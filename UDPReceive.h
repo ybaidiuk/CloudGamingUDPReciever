@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 
- // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
@@ -22,17 +21,17 @@ extern "C" {
 
 
 class UDPReceive {
-	
+
 public:
 	int sock;
 	struct sockaddr_in addr;
-	char *recbuffer;
+	char* recbuffer;
 	bool leftover;
-	
+
 	UDPReceive();
-	~UDPReceive(){ delete recbuffer; };
-	void init( int port );
-	int receive( char *buffer, int len, double *ptime  );
-	int receive( char *buffer, int len, const char *tag, double *ptime  );
+	~UDPReceive() { delete recbuffer; };
+	void init(int port);
+	int receive(char* buffer, int len, double* ptime);
+	int receive(char* buffer, int len, const char* tag, double* ptime);
 	void closeSock();
 };

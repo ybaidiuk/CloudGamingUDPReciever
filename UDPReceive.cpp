@@ -24,7 +24,7 @@ typedef struct RTHeader {
 
 
 UDPReceive::UDPReceive() {
-	recbuffer = new char[65000];
+	recbuffer = new char[700000];
 }
 
 
@@ -32,7 +32,7 @@ void UDPReceive::init( int port ) {
 	sock = socket( PF_INET, SOCK_DGRAM, 0 );
 	
 	addr.sin_family = AF_INET;  
-	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addr.sin_port = htons( port );
 	int ret = bind(sock, (const sockaddr *)&addr, sizeof(addr));
 	
@@ -66,7 +66,7 @@ int UDPReceive::receive( char *buffer, int len, const char *tag, double *ptime )
 		int ret=0;
 		
 		if( !leftover ) {
-			ret = recvfrom(sock, recbuffer, 65000, 0,(sockaddr*) &si_other, &slen);
+			ret = recvfrom(sock, recbuffer, sizeof(recbuffer), 0,(sockaddr*) &si_other, &slen);
 		}
 		leftover=false;
 		
