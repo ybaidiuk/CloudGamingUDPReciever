@@ -18,6 +18,12 @@ extern "C" {
 #include <sys/types.h>
 }
 
+typedef struct RTHeader {
+	double		  time;
+	unsigned long packetnum;
+	unsigned char fragments;
+	unsigned char fragnum;
+} RTHeader_t;
 
 
 class UDPReceive {
@@ -31,7 +37,9 @@ public:
 	UDPReceive();
 	~UDPReceive() { delete recbuffer; };
 	void init(int port);
-	int receive(char* buffer, int len, double* ptime);
-	int receive(char* buffer, int len, const char* tag, double* ptime);
+	int receive(char* buffer, double* ptime);
+	int receive(char* buffer, const char* tag, double* ptime);
 	void closeSock();
+
+
 };

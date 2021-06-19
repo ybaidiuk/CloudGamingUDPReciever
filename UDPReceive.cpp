@@ -14,13 +14,6 @@ extern "C" {
 	#include <string.h>
 }
 
-typedef struct RTHeader {
-	double		  time;
-	unsigned long packetnum;
-	unsigned char fragments;
-	unsigned char fragnum;
-} RTHeader_t;
-
 
 
 UDPReceive::UDPReceive() {
@@ -42,13 +35,13 @@ void UDPReceive::init( int port ) {
 }
 
 
-int UDPReceive::receive( char *buffer, int len, double *ptime ) {
+int UDPReceive::receive( char *buffer,  double *ptime ) {
 	auto tag = "";
-	return receive( buffer, len,tag, ptime );
+	return receive( buffer, tag, ptime );
 }
 
 
-int UDPReceive::receive( char *buffer, int len, const char *tag, double *ptime ) {
+int UDPReceive::receive( char *buffer, const char *tag, double *ptime ) {
 	struct sockaddr_in si_other;
     socklen_t slen=sizeof(si_other);
 
@@ -117,6 +110,3 @@ int UDPReceive::receive( char *buffer, int len, const char *tag, double *ptime )
 void UDPReceive::closeSock() {
 	closesocket( sock );
 }
-
-
-
