@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
 	while (true) {
 
 		/// receiving starts here //////////
-		char buf[65000];
+		char buf[650000];
 		ZeroMemory(buf, sizeof(buf));
 
 		int bufLength = 0;

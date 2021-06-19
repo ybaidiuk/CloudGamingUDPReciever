@@ -17,7 +17,7 @@ extern "C" {
 
 
 UDPReceive::UDPReceive() {
-	recbuffer = new char[700000];
+	recbuffer = new char[650000];
 }
 
 
@@ -59,7 +59,7 @@ int UDPReceive::receive( char *buffer, const char *tag, double *ptime ) {
 		int ret=0;
 		
 		if( !leftover ) {
-			ret = recvfrom(sock, recbuffer, sizeof(recbuffer), 0,(sockaddr*) &si_other, &slen);
+			ret = recvfrom(sock, recbuffer, 650000, 0,(sockaddr*) &si_other, &slen);
 		}
 		leftover=false;
 		
