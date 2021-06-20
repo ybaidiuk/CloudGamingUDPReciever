@@ -24,15 +24,15 @@ extern "C" {
 
 
 const char* outfilename = "screenshot";
-AVFrame* picture;
+AVFrame* avFrame;
 AVCodecContext* avCodecCtx;
-AVCodecParserContext* parser;
+AVCodecParserContext* avParser;
 const AVCodec* avCodec;
 
-SDL_Window* window;
-SDL_Renderer* renderer;
-SDL_Texture* texture;
-SDL_Rect r;
+SDL_Window* sdlWindow;
+SDL_Renderer* sdlRenderer;
+SDL_Texture* sdlTexture;
+SDL_Rect sdlReck;
 
 void initWSAndAvCodecCtxAndAvParser();
 int initSDL(AVCodecContext* ctx);
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 
 		uint8_t* data = received_data;
 		while (data_size > 0) {
-			int ret = av_parser_parse2(parser, avCodecCtx, &pkt_out->data, &pkt_out->size, data, data_size, AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
+			int ret = av_parser_parse2(avParser, avCodecCtx, &pkt_out->data, &pkt_out->size, data, data_size, AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
 			std::cout << "ret: " << ret << "\n";
 
 			if (ret < 0) {
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 			std::cout << pkt_out->size << "pkt_out size\n";
 			if (pkt_out->size) {
 				printf("Outname %s\n", outname);
-				decode(avCodecCtx, picture, pkt_out, outname);
+				decode(avCodecCtx, avFrame, pkt_out, outname);
 			} else {
 				printf("pkt_out size is null!");
 			}
@@ -100,17 +100,17 @@ int main(int argc, char* argv[]) {
 
 	}
 
-	decode(avCodecCtx, picture, NULL, outfilename);
+	decode(avCodecCtx, avFrame, NULL, outfilename);
 
-	av_parser_close(parser);
+	av_parser_close(avParser);
 	avcodec_free_context(&avCodecCtx);
-	av_frame_free(&picture);
+	av_frame_free(&avFrame);
 
 	receiver.closeSock();
 
 	WSACleanup();
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(sdlRenderer);
+	SDL_DestroyWindow(sdlWindow);
 	SDL_Quit();
 
 	return 0;
@@ -131,9 +131,9 @@ void initWSAndAvCodecCtxAndAvParser() {
 		exit(1);
 	}
 
-	parser = av_parser_init(avCodec->id);
-	parser->flags = PARSER_FLAG_COMPLETE_FRAMES;
-	if (!parser) {
+	avParser = av_parser_init(avCodec->id);
+	avParser->flags = PARSER_FLAG_COMPLETE_FRAMES;
+	if (!avParser) {
 		fprintf(stderr, "parser not found\n");
 		exit(1);
 	}
@@ -146,7 +146,7 @@ void initWSAndAvCodecCtxAndAvParser() {
 	}
 	avCodecCtx->width = 800;
 	avCodecCtx->height = 600;
-	picture = av_frame_alloc();
+	avFrame = av_frame_alloc();
 }
 
 int initSDL(AVCodecContext* ctx) {
@@ -155,37 +155,37 @@ int initSDL(AVCodecContext* ctx) {
 		return -1;
 	}
 
-	r.x = 0;
-	r.y = 0;
-	r.w = ctx->width;
-	r.h = ctx->height;
+	sdlReck.x = 0;
+	sdlReck.y = 0;
+	sdlReck.w = ctx->width;
+	sdlReck.h = ctx->height;
 
-	window = SDL_CreateWindow("Hello",
+	sdlWindow = SDL_CreateWindow("Hello",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		640, 480, 0);
-	if (!window) {
+	if (!sdlWindow) {
 		fprintf(stderr, "SDL_CreateWindow failed");
 		return -1;
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, 0);
-	if (!renderer) {
+	sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, 0);
+	if (!sdlRenderer) {
 		fprintf(stderr, "SDL_CreateRenderer failed");
 		return -1;
 	}
 
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, r.w, r.h);
+	sdlTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, sdlReck.w, sdlReck.h);
 
 	return 0;
 }
 
 void display_frame_via_SDL(AVFrame* frame, AVCodecContext* ctx) {
 
-	SDL_UpdateYUVTexture(texture, &r, frame->data[0], frame->linesize[0], frame->data[1], frame->linesize[1], frame->data[2], frame->linesize[2]);
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, texture, NULL, NULL);
-	SDL_RenderPresent(renderer);
+	SDL_UpdateYUVTexture(sdlTexture, &sdlReck, frame->data[0], frame->linesize[0], frame->data[1], frame->linesize[1], frame->data[2], frame->linesize[2]);
+	SDL_RenderClear(sdlRenderer);
+	SDL_RenderCopy(sdlRenderer, sdlTexture, NULL, NULL);
+	SDL_RenderPresent(sdlRenderer);
 }
 
 void decode(AVCodecContext* dec_ctx, AVFrame* frame, AVPacket* pkt, const char* filename) {
