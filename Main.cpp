@@ -160,7 +160,7 @@ int initSDL(AVCodecContext* ctx) {
 	sdlReck.w = ctx->width;
 	sdlReck.h = ctx->height;
 
-	sdlWindow = SDL_CreateWindow("Hello",
+	sdlWindow = SDL_CreateWindow("Cloud Gaming window.",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		640, 480, 0);
